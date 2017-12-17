@@ -10,7 +10,11 @@
 #      History:
 #=============================================================================
 '''
-import Image
+import PIL
+import numpy as np
+
+BG='data/NewZealand.png'
+MAP="data/sedmap.dat"
 
 LAT_SW = -47.27
 LAT_NE = -34.107
@@ -21,7 +25,7 @@ DEFAULT_RES =5
 def getConductivity_c(lat,lng):
     if lat < LAT_SW and lat > LAT_NE and lng < LNG_SW and lng > LNG_NE:
         return -1
-    im = Image.open('./data/NewZealand.png')
+    im = PIL.Image.open(BG)
     pixels = im.load()
     width,height = im.size
     lat_diff = abs(LAT_SW - LAT_NE)
@@ -34,7 +38,7 @@ def getConductivity_c(lat,lng):
 
 def getConductivity_c_mat(data):
     conductivity_c_mat = []
-    im = Image.open('./data/NewZealand.png')
+    im = PIL.Image.open(BG)
     pixels = im.load()
     width,height = im.size
     lat_diff = abs(LAT_SW - LAT_NE)
@@ -96,19 +100,16 @@ def getConductivity(lat,lng):
 
 
 
-def loadSedmapDat(lat,lng):
+def loadSedmapDat(lat, lng):
 # Change lat lng from [-90,90] [-180,180] into [0,180] [0,360]
     lat_C = -(lat - 90 )
     lng_C = lng + 180
 #Read file
-    file = open("./data/sedmap.dat", "r")
-    content = file.read().split("\r")
-    file.close()
-# Create data as latxlng matrix
-    data = [x.strip().split("   ") for x in content]
+    data = np.loadtxt(MAP)
 # Change data to num
     #return eval(data[int(lat_C)][int(lng_C)])
-    return 1/float(eval(data[int(lat_C)][int(lng_C)]))
+    return 1/data[int(lat_C)][int(lng_C)]
+
 
 def loadSedmapDat_mat(data):
     conductivity_mat = []
