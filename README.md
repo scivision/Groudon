@@ -8,33 +8,30 @@ Groudon
 
 
 ## How to deploy (Server)
-###check out the code
-Check out the code by using git command.[^1]
 
-	git clone git@github.com:quake0day/Groudon.git
+Check out 
 
-[^1]: The following instruction assume that you checkout this repo to your home directory (~/Groudon).
+	git clone https://github.com/quake0day/Groudon
 
-To deploy this online simulation system, we need compile serveral componements. Currently, there are two main componments that need to be compiled.
 
-###Grwave
-We are using International Telecommunication Union (ITU)-R GRWAVE.
-* A MS-DOS based software (written in *Fortran 77*).
+There are two main componments to be compiled.
+
+### GRWAVE
+We are using publicly available International Telecommunication Union (ITU)-R [GRWAVE](https://www.itu.int/en/ITU-R/study-groups/rsg3/Pages/iono-tropo-spheric.aspx).
+
+* written in Fortran 77
 * Used by ITU to obtain the graphics showed at Rec. ITU-R P.368-9.
 * Allows calculating the field over a path with one value for conductivity.
 
-**GRWAVE** is publicly available online: [Official Website](http://www.itu.int/oth/R0A0400000F/en "Grwave")
 
-####usage
-Firstly, we need to compile grwave by using **GFortran** [Official Website](http://gcc.gnu.org/wiki/GFortran "GFortran")
+compile GRWAVE:
+```sh
+cd grwave/
+gfortran grwave.for -o ../gr
+```
 
-	cd ~/Groudon/grwave/
-	gfortran grwave.for -o gr
-Then we need copy the binary file `gr` to Groudon's root directory, you can type something like
 
-	cp ~/Groudon/grwave/gr ~/Groudon/gr
-
-###NS2
+### NS2
 Firstly, you need make sure that you have a environment that is able to compile original ns2 source code into executable program (it can generate `ns` after type `make`)
 
 After that, you need copy [`Shadowing2.cc`][sw2c] and [`Shadowing2.h`][sw2h] into `*/ns-2.*/mobile/`
@@ -45,20 +42,21 @@ After that, you need copy [`Shadowing2.cc`][sw2c] and [`Shadowing2.h`][sw2h] int
 Since we want to simulate groundwave propagation, the default max propagation delay defined in NS2 **cannot be directly used** and need to be changed. (Otherwise if the propagation delay is more than 2us, and sender do not receive ACK, it will re-send the packet and give us a false result)
 
 We need to change `*/ns-2.x/mac/mac802_11.h`.
-
-	#define DSSS_MaxPropagationDelay 0.000002 // 2us XXXX
+```c
+#define DSSS_MaxPropagationDelay 0.000002 // 2us XXXX
+```
 to a bigger value. Like:
-	
-	#define DSSS_MaxPropagationDelay 0.02
-
+```c	
+#define DSSS_MaxPropagationDelay 0.02
+```
 Then we can recompiled the whole program and copy the generated `ns` to `~/Groudon/`
 
 Like:
+```sh
+cp */ns-2.*/ns ~/Groudon/ns
+```
 
-	cp */ns-2.*/ns ~/Groudon/ns
-
-
-###Extra Python library
+### Extra Python library
 Note:The library name are based on archlinux (AUR) it may have a different name in Ubuntu and other linux distro
 
 1. mysql-python
@@ -67,13 +65,11 @@ Note:The library name are based on archlinux (AUR) it may have a different name 
 4. python2-numpy
 5. python2-scipy
 
-###Perl
-You need to install perl to process simulation result
-
-## More..
+### Perl
+You need to install `perl` to process simulation result
 
 
 ## Team Member
-Si Chen
 
-Yifan Sun
+* Si Chen
+* Yifan Sun
