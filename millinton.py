@@ -4,12 +4,11 @@ import random
 import os
 import functools
 #
+import getHeight
 from loadc import getConductivity_mat
 from loadc import DEFAULT_RES
 from caldistance import CalDis
 
-#geo_info = getHeight.getPathInfo("41")
-#geo_info = getHeight.formatPathInfo(geo_info)
 
 def cal_milliton(geo_info,MFREQ,MIPOL,dis,HTT,HRR,height,height_r):
     conductivity = find_path_with_diff_conductivity(geo_info)
@@ -166,8 +165,12 @@ def call_gr(MIPOL,MFREQ,MEPSLON,MSIGMA,MDIST,h):
 
     #return float(return_Edb)
 
-# GET RESULdind_path_with_diff_conductivity(geo_info)
+if __name__ == '__main__':
+    geo_info = getHeight.getPathInfo("41")
+    geo_info = getHeight.formatPathInfo(geo_info)
 
-#call_gr("1","900","0.005","30","200","4")
+    find_path_with_diff_conductivity(geo_info)
 
-#cal_milliton(geo_info,900,1)
+    #call_gr("1","900","0.005","30","200","4")
+
+    #cal_milliton(geo_info,900,1)
