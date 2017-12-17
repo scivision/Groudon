@@ -158,11 +158,14 @@ C
      1 DMAX,JR,JT,JHT,HRR,HTT,ANS,HSCALE)
 C
       GOTO 10
-  100 IF(IERRCT.EQ.0)STOP
+
+  100 IF(IERRCT == 0) stop
+
       WRITE(6,4000)IERRCT
  4000 FORMAT('***',I8,'ERRORS FOUND IN INPUT -PROGRAM NOT RUN')
-  110 STOP
-      END
+      Error Stop
+
+      END Program
 C***********************************************************************
 C*                                                                     *
 C*  GRWAVE (RELEASE 2 18/2/1985)                                       *
@@ -296,8 +299,10 @@ C PRINT THE COMPUTED FIELD STRENGTH FROM RESIDH
 C     Restore DMIN                                                      jfc
       DMIN=DMIN0
    80 CONTINUE
-   90 RETURN
-      END
+
+      END SUBROUTINE GRWAVE
+
+
       SUBROUTINE PROF(NS,HSCALE,DEL,SC,D1P0)
 C PROF READS THE SURFACE REFRACTIVITY NS IN N-UNITS AND HEIGHT
 C SCALE HSCALE IN KILOMETRES FOR THE EXPONENTIAL REFRACTIVITY
@@ -384,8 +389,8 @@ C     CALL UNFLOW ***Marconi mainframe routine***
       XR=DREAL(X)                                                       JPB
       XI=DIMAG(X)
       ABS2=XR*XR+XI*XI
-      RETURN
-      END
+
+      END SUBROUTINE PROF
 C----------------------------------------------------------------------
 C
       FUNCTION BTLC(H1,H2,F,IP)
@@ -548,8 +553,10 @@ C     PRINT*,'N',N,'X',X,'Z',Z
 C A FUNCTION USED IN PSTART.
       COMPLEX*16 ZPSI,Y,Z
       ZPSI=1.0D0/(1.0D0-Z*Y*Y)
-      RETURN
-      END
+
+      END FUNCTION BTLC
+
+
       SUBROUTINE RUNKT1(F,Y1,Y2,X1,H,N)
 C THIS PERFORMS A SINGLE STEP OF THE 4 TH ORDER RUNGE-KUTTA METHOD
 C ON THE N FIRST ORDER DIFFERENTIAL EQUATIONS DY/DX=F(J,X,Y)
@@ -696,7 +703,8 @@ C MORE THAN 500 STEPS USED.INTEGRATION STOPS.
    80   IF(IDEBUG.GE.1)WRITE(6,2000)
  2000   FORMAT(' 1000 STEPS USED IN RUNKT2' ' RUNK2-690')
       STOP
-      END
+      END SUBROUTINE RUNKT1
+
       BLOCK DATA
 C WEIGHTS AND ABSCISSAS FOR 16 POINT GAUSSIAN QUADRATURE WITH
 C WEIGHT FUNCTIONS SQRT(X),1/SQRT(X) AND 1.
@@ -735,7 +743,9 @@ C 10 ROOTS OF DAI(Z)/DZ=0.
      1-9.022651,-10.04017,-11.00852,-11.93602,-12.82878/
       DATA ASD/-1.018793,-3.248198,-4.820099,-6.163307,-7.372177,
      3-8.488487,-9.535449,-10.52766,-11.47506,-12.38479/
-      END
+      END block data
+
+
       FUNCTION PINT(J,H,M,H1)
 C PINT COMPUTES THE PHASE INTEGRAL (J=1),ITS FIRST (J=2) OR SECOND
 C (J=3) DERIVATIVE WITH RESPECT TO P0(M) FROM H1(M) TO H.
@@ -789,8 +799,10 @@ C
    70 CALL PFUNCS(1,H)
       PINT=0.5D0*AKI*((1.0D0,-1.0D0)/(D1P*CDSQRT((0.0D0,-2.0D0)*P))+
      1 F*PINT)
-      RETURN
-      END
+
+      END FUNCTION PINT(
+
+
       SUBROUTINE PSTART(M,PSI0,DEL,SC,D1P0,H1)
 C PSTART COMPUTES AN INITIAL VALUE FOR THE PROPAGATION CONSTANT
 C P0(M) DERIVED FROM A UNIFORM APPROXIMATION BASED ON AIRY INTEGRAL
@@ -923,7 +935,7 @@ C
    50     CONTINUE
         IF(IDEBUG.GE.1)WRITE(6,2000)
  2000 FORMAT(' P0(M) HAS NOT CONVERGED' ' PSTART-918')
-        STOP
+        error STOP
 C TEST FOR CONVERGENCE.
    60   IF(IDEBUG.EQ.2)WRITE(6,3000)ITERAT,MSTEP,P0(M),Z0(1),XI
  3000 FORMAT(I5,I9,3(6X,'(',E14.7,',',E14.7,')') ' PSTART-922')
@@ -941,7 +953,7 @@ C     IF(IDEBUG.EQ.2)PRINT*,'PSIT',PSIT,'P0(M)',P0(M),'XI',XI
 C    1  ,'PSTART-934'
       IF(IDEBUG.GE.1)WRITE(6,4000)
  4000 FORMAT(' Z0 HAS NOT CONVERGED' ' PSTART-936')
-      STOP
+      error STOP
 C
 C COMPUTE THE HEIGHT HCH(M) AT WHICH THE METHOD OF COMPUTING THE
 C HEIGHT-GAIN FUNCTION CHANGES.
@@ -953,8 +965,10 @@ C
       IF(HCH(M).GT.2.0D0*DREAL(H1(M)))RETURN                            JPB
    90 HCH(M)=2.0D0*DREAL(H1(M))                                         JPB
 C     IF(IDEBUG.EQ.2)PRINT*,'HCH(M)',HCH(M) ,'PSTART-949'
-      RETURN
-      END
+
+      END SUBROUTINE PSTART
+
+
       FUNCTION HFI(J,H,FI)
 C FI(1) IS THE WAVE IMPEDANCE AT THE HEIGHT H.FI(2) IS ITS DERIVATIVE
 C WITH RESPECT TO THE PROPAGATION CONSTANT P0(M).THESE SATISFY
@@ -1067,8 +1081,10 @@ C COMPUTE HR(2,H,R) IF IHTG=1 OR HRTAU(2,H,R) IF IHTG=3.
    90 IF(IHTG.EQ.1)HR=-AKI*(R(1)/F(NF)+2.0D0*F(NF)*R(2))-G(NF)*(0.25D0*
      1 (1.0D0-R(1)*R(1))/(F(NF)*F(NF))+0.5D0*R(1)*R(2))
       IF(IHTG.EQ.3)HRTAU=AKI*F(NF)*(1.0D0-R(1))/(1.0D0+R(1))
-      RETURN
-      END
+
+      END FUNCTION HFI
+
+
       SUBROUTINE EIGEN(M,PSI0,DEL,SC,D1P0)
 C EIGEN COMPUTES THE PROPAGATION CONSTANT P0(M) AND EXCITATION
 C FACTOR FID(M) FOR THE M TH MODE.
@@ -1156,8 +1172,10 @@ C COMPUTE A NEW VALUE OF P0(M) USING NEWTONS METHOD.
       R0(2)=R0(2)+(DP0+DDP0)*R03
       FID(M)=AKI/(1.0D0+R0(1))*(0.5D0*(1.0D0-R0(1))/FAC-2.0D0*FAC*R0(2)/JPB
      1   (1.0D0+R0(1)))
-      RETURN
-      END
+
+      END SUBROUTINE EIGEN
+
+
       SUBROUTINE NEWHTG(M,HA,HB,FI,HTG)
 C HTG IS THE LOGARITHMIC OF THE HEIGHT-GAIN FUNCTION.
 C FI IS THE WAVE IMPEDANCE.
@@ -1202,8 +1220,10 @@ C**********************************************************************
    4  CALL RUNKT2(HFITAU,FII,FIF,HAC,HBC,1.D-10,0.001D0,2,MSTEP)        JPB
       FI=FIF(1)
       HTG=FIF(2)
-      RETURN
-      END
+
+      END SUBROUTINE NEWHTG
+
+
       SUBROUTINE HEIGHT(M,HA,HB)
 C HTG IS THE HEIGHT-GAIN FUNCTION OR LOGARITHM OF THE WAVE FUNCTION.
 C FI IS THE WAVE IMPEDANCE. R IS THE WAVE REFLECTION COEFFICIENT. FI IS
@@ -1260,8 +1280,10 @@ C THIS SUBROUTINE CAN BE USED INSTEAD OF SUBROUTINE NEWHTG IN RESIDH
       HCC=HAC
       GO TO 30
    50 CALL RUNKT2(HFITAU,FII,FIF,HAC,HBC,1.D-10,0.001D0,2,MSTEP)
-      RETURN
-      END
+
+      END SUBROUTINE HEIGHT
+
+
       SUBROUTINE GHIGHT(M,HA,HB)
 C HTG IS THE HEIGHT-GAIN FUNCTION OR LOGARITHM OF THE WAVE FUNCTION.
 C R IS THE WAVE REFLECTION COEFFICIENT.
@@ -1300,8 +1322,10 @@ C***********************************************************************
       CALL RUNKT2(HTAU,HTGI,HTGF,HCHC,HBC,1.D-10,.125D0,1,MSTEP)        JPB
       RETURN
    4  CALL RUNKT2(HRTAU,FII,FIF,HAC,HBC,1.D-10,0.01D0,2,MSTEP)          JPB
-      RETURN
-      END
+
+      END SUBROUTINE GHIGHT
+
+
       SUBROUTINE SORT(A,B,I,J)
 C SORT ARRANGES THE ARRAY A IN ASCENDING ORDER IN B.THE L TH ELEMENT
 C OF B THEN COMES FROM THE I(L) TH ELEMENT OF A.A,B AND I HAVE
@@ -1328,8 +1352,10 @@ C
           IPS=I(IS)
           I(IS)=I(L)
    30     I(L)=IPS
-      RETURN
-      END
+
+      END SUBROUTINE SORT
+
+
       SUBROUTINE RESIDH(IALT,DEL,SC,D1P0,PSI0,DMIN,DMAX,DSTEP
      1 ,LOGLIN,JR,JT,LRMIN,LTMIN,HR,HT,DM,DA,EDBA,TL,NA)
 C RESIDH COMPUTES THE FIELD STRENGTH-DISTANCE VARIATIONS USING THE
@@ -1558,9 +1584,11 @@ C*******************
 11000 FORMAT(////' RESIDUE SERIES ZONE      HT=',E15.7,6X,'HR=',
      1E15.7/6X,'RANGE',14X,' FIELD STRENGH'/8X,'KM',15X,'DB ABOVE ',
      2'1 MICROVOLT/M'/(1X,E14.7,E24.7) ' RESIDH-1547')
-  250 RETURN
-  260 STOP
-      END
+
+
+ 250  END SUBROUTINE RESIDH
+
+
       FUNCTION W(Z)
 C......................................................................
 C REVISED VERSION CODED SEPTEMBER 1988 PER UPDATE INFORMATION FROM CCIR
@@ -1646,8 +1674,10 @@ C
       ENDIF
         IF(IDEBUG.GE.2)WRITE(6,4000)W
  4000   FORMAT(' W=(',E14.7,',',E14.7,')',' W(Z)-1608,1634')
-      RETURN
-      END
+
+      END FUNCTION W
+
+
       SUBROUTINE JCALC(NMAX,TAU,J)
 C JCALC COMPUTES A SET OF FUNCTIONS J(M) (M=1,MAX) WITH ARGUMENT TAU
 C THE J(M) ARE DEFINED BY
@@ -1710,8 +1740,10 @@ C PRINT RESULTS.
    70 IF(IDEBUG.EQ.2)WRITE(6,3000)TAU,(J(N),N=1,NMAX)
  3000 FORMAT(' TAU=(',E14.7,',',E14.7,')   J=',6E15.7/(11X,8E15.7)
      1  /' JCALC-1696')
-      RETURN
-      END
+
+      END SUBROUTINE JCALC
+
+
       SUBROUTINE JRCALC (TAUP,TAUR,JRP)
 C JRCALC COMPUTES THE ARRAY JRP WHICH IS USED IN FLATX3.EACH ELEMENT
 C IS A COMBINATION OF THE ERROR FUNCTIONS W(TAUP) AND W(TAUR).
@@ -1795,8 +1827,10 @@ C PRINT RESULTS.
       IF(IDEBUG.EQ.2)WRITE(6,2000)(JRP(2,M),M=1,7),(JRP(3,M),M=2,5),JRP(
      1 4,4 )
  2000 FORMAT(' JRP=',8E15.7/(5X,8E15.7) /' JCALC-1781')
-      RETURN
-      END
+
+      END SUBROUTINE JRCALC
+
+
       SUBROUTINE YCALC (HLC,HHC,YD,YR)
 C YCALC COMPUTES ARRAYS YD AND YR.THESE ARE USED IN FLATX3.
       IMPLICIT REAL *8(A-H,O-Z)
@@ -1898,8 +1932,10 @@ C COMPUTE THE ARRAYS YD AND YR.
   140 IF(IDEBUG.EQ.2)WRITE(6,6000)(YD(N),(YR(I,N),I=1,3),N=1,7)
  6000 FORMAT('0',14X,'YD(N)',27X,'YR(1,N)',26X,'YR(2,N)',26X,'YR(3,N)'/
      14(2X,'(',E14.7,',',E14.7,')') /' YCALC-1884')
-      RETURN
-      END
+
+      END SUBROUTINE YCALC
+
+
       SUBROUTINE FLATX3(DEL,PSI0,DMIN,DMAX,DSTEP,LOGLIN,HLC,HHC)
 C FLATX3 COMPUTES THE FIELD STRENGTH-DISTANCE VARIATION FOR TERMINALS
 C CLOSE TO THE SURFACE AT SHORT RANGES.A SERIES GENERALISATION OF THE
@@ -2010,8 +2046,10 @@ C PRINT MAIN RESULTS.
       IF(IDEBUG.EQ.0)WRITE(6,8000)(D(N1),EDB(N1),TL(N1),N1=1,N)
 C********
  8000 FORMAT(1H ,22X,F7.2,7X,F7.2,14X,F7.2 )
-      RETURN
-      END
+
+      END SUBROUTINE FLATX3
+
+
       FUNCTION PINTAB(J,HA,HB)
 C PINTAB COMPUTES THE PHASE INTEGRAL (J=1),ITS FIRST (J=2) OR SECOND
 C (J=3) DERIVATIVE WITH RESPECT TO P0(M) FROM HA TO HB.16-POINT
@@ -2042,8 +2080,10 @@ C
    10   PINTAB=PINTAB+FAC
       PINTAB=A(J)*(1.0D0,1.0D0)*AKI*FM*PINTAB
 C     IF(IDEBUG.EQ.2)PRINT*,'PINTAB=',PINTAB ,'PINTAB-2030'
-      RETURN
-      END
+
+      END FUNCTION PINTAB
+
+
       FUNCTION COMINT(J,M,HLC,HHC,H1)
 C COMINT COMPUTES COMBINATIONS OF PHASE INTEGRALS USED IN RAY.
 C
@@ -2084,8 +2124,10 @@ C
      1 PINT(J,HHC,M,H1)+PINTAB(J,HLC,(0.0D0,0.0D0))
       IF(.NOT.B)COMINT=2.0D0*PINTAB(J,HLC,(0.0D0,0.0D0))+
      1 PINTAB(J,HHC,HLC)
-      RETURN
-      END
+
+      END FUNCTION COMINT
+
+
       SUBROUTINE RAY(*,DEL,SC,D1P0,M,P0,HLC,HHC,D,DC,DH,DL,H1,F,
      1 FDD,G)
 C RAY COMPUTES COMPONENTS OF THE DIRECT RAY BEFORE (M=1) OR AFTER
@@ -2186,8 +2228,10 @@ C STATIONARY PHASE INTEGRATION.
  5000 FORMAT(' M=',I1,' P0=(',E9.2,',',E9.2,') H1=(',E9.2,',',E9.2,
      1') F=(',E9.2,',',E9.2,') FDD=(',E9.2,',',E9.2,') G=(',E9.2,',',
      2E9.2,')' /' RAY-2171')
-      RETURN
-      END
+
+      END SUBROUTINE RAY
+
+
       SUBROUTINE GEOMOP(DEL,SC,D1P0,PSI0,DMIN,DMAX,DSTEP,
      1 LOGLIN,JR,JT,LRMIN,LTMIN,HR,HT,DM)
 C GEOMOP COMPUTES THE FIELD USING GEOMETRICAL OPTICS.
@@ -2325,9 +2369,10 @@ C COMPUTE THE NEXT RANGE D.
   100 IF(LOGLIN.EQ.0)D=D+DSTEP
       IF(LOGLIN.EQ.1)D=D*DSTEP
       N=N+1
-      GOTO20
-   50 RETURN
-      END
+      GOTO 20
+
+
+   50 END SUBROUTINE GEOMOP
 C***********************************************************************
 C Free-format Fortran-77 input routines.                               *
 C Copyright (C) GEC plc 1985                                           *
@@ -2528,8 +2573,8 @@ C Copy into output parameter and return                                *
   140 ILEN = IWL
       WN = ST
       REPEAT = .FALSE.
-      RETURN
-      END
+
+      END SUBROUTINE WORDN
 C***********************************************************************
 C Low-level free-format input routines.                                *
 C These manage a 1-line buffer of length LINE and extract data from it *
@@ -2674,8 +2719,8 @@ C Test for end of file                                                 *
 C***********************************************************************
       ENTRY EOF(E)
       E = EOFL
-      RETURN
-      END
+
+      END SUBROUTINE RDCHAR
 C***********************************************************************
 C Read a list of numbers in free format. The list is a sequence of     *
 C elements which are each:                                             *
@@ -2696,7 +2741,7 @@ C 3 if a corrupted number was found                                    *
 C 4 if an element of type (b) is malformed                             *
 C If an error occurs the rest of the list is skipped                   *
 C***********************************************************************
-      SUBROUTINE RDDLST (D, LEN, NUM, IRET, SHORT)
+      SUBROUTINE RDDLST(D, LEN, NUM, IRET, SHORT)
       DOUBLEPRECISION D(LEN)
       REAL S(LEN)
       INTEGER I(LEN)
@@ -2803,15 +2848,6 @@ C Stop on EOF or an unrecognised word                                  *
          ENDIF
       ENDIF
       GOTO 70
-      END
-C --------------------------------------------------------------
-C      DOUBLE PRECISION FUNCTION DREAL(Z)
-C This function required for Leahey Fortran 77 which does not
-C     support DREAL as an intinsic function in its Fortran
-C     extensions.  Paradoxically, it does support DIMAG.
-C===== Delete the C in column 1 of the next 4 lines and the fourth
-C===== line above when using Leahey Fortran.
-C      COMPLEX*16 Z
-C      DREAL=DBLE(Z)
-C      RETURN
-C      END
+
+      END SUBROUTINE RDDLST
+
