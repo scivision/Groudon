@@ -45,10 +45,10 @@ if __name__== '__main__':
         lng1 = float(sys.argv[2])
         lat2 = float(sys.argv[3])
         lng2 = float(sys.argv[4])
-    except IndexError,e:
+    except IndexError as e:
         sys.exit()
     distance = CalDis(lat1,lng1,lat2,lng2)
-    print distance
+    print(distance)
  #   if distance == 0: # success
 
 

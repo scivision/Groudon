@@ -1,11 +1,11 @@
-import getHeight
+#!/usr/bin/env python
 import subprocess
-from loadc import getConductivity
 from loadc import getConductivity_mat
 from loadc import DEFAULT_RES
 from caldistance import CalDis
 import random
 import os
+import functools
 
 #geo_info = getHeight.getPathInfo("41")
 #geo_info = getHeight.formatPathInfo(geo_info)
@@ -16,7 +16,7 @@ def cal_milliton(geo_info,MFREQ,MIPOL,dis,HTT,HRR,height,height_r):
     height_r = float(height_r)
     #print len(conductivity)
     #print conductivity
-    
+
     if len(conductivity) > 2: # more than one conductivity
         i = 0
         j = 0
@@ -40,7 +40,7 @@ def cal_milliton(geo_info,MFREQ,MIPOL,dis,HTT,HRR,height,height_r):
                 else:
                     d[0] = d[1]
                 if i == 0:
-                    d[1] = reduce(lambda x,y:x+y,MDIST)
+                    d[1] = functools.reduce(lambda x,y:x+y,MDIST)
                 else:
                     d[1] = d[1] + MDIST[1]
                 HTT_HRR =\
@@ -61,7 +61,7 @@ def cal_milliton(geo_info,MFREQ,MIPOL,dis,HTT,HRR,height,height_r):
         MSIGMA = conductivity[0][1]
         Et = homo_path(dis,HTT,HRR,MIPOL,MFREQ,MSIGMA)
         return Et
-    else: # error 
+    else: # error
         return None
 
 
@@ -69,16 +69,20 @@ def homo_path(dis,HTT,HRR,MIPOL,MFREQ,MSIGMA):
     h = [HTT,HRR]
     MEPSLON = cal_MEPSLON(MSIGMA,MFREQ)
     Et = call_gr(MIPOL,MFREQ,MEPSLON,MSIGMA,dis,h)
-    print Et
+    print(Et)
+
     return Et
 
 # ITU Report 879-1 indicates that an empirical equation relating permittivity to
 # conductivity, for frequencies below 30MHz, has been found by Hanle
 def cal_MEPSLON(MSIGMA,MFREQ):
+
     assert MFREQ <= 30*(10**6)
+
     return 50*MSIGMA**(1.0/3)
 
-def find_path_with_diff_conductivity(geo_info): 
+
+def find_path_with_diff_conductivity(geo_info):
     data = []
     con_pre = 0
     conductivity = []
@@ -107,7 +111,7 @@ def call_gr(MIPOL,MFREQ,MEPSLON,MSIGMA,MDIST,h):
     HTT = h[0]
     HRR = h[1]
     # this below method is very dangerous when multi users using this system!!
-    # it may occur conflict 
+    # it may occur conflict
     # however I like it :)
     filename = str(random.randrange(0,1000001,2))
     try:
@@ -125,8 +129,8 @@ def call_gr(MIPOL,MFREQ,MEPSLON,MSIGMA,MDIST,h):
         #print command
         fp.write(command)
         fp.close()
-    except Exception,e:
-        print "ERROR CREATE GR FILE IN MILLINTON.PY"
+    except Exception as e:
+        print("ERROR CREATE GR FILE IN MILLINTON.PY")
 
     if not os.path.exists(os.getcwd()+"/millington_file"):
         os.mkdir(os.getcwd()+"/millington_file")
@@ -136,23 +140,27 @@ def call_gr(MIPOL,MFREQ,MEPSLON,MSIGMA,MDIST,h):
     try:
         process_rungrwave = subprocess.Popen(rungrwave,shell=True)
         process_rungrwave.wait()
-    except Exception,e:
-        print "rungrawve error IN MILLINTON.PY"
+    except Exception as e:
+        print("rungrawve error IN MILLINTON.PY")
+
         return 1
+
     runperl = "perl ana.pl "+ os.getcwd()+"/millington_file/"+filename+"_out"
     try:
         process_runperl_output = subprocess.Popen(runperl,stdout =\
                 subprocess.PIPE,shell=True).communicate()
-    except Exception,e:
-        print e
+    except Exception as e:
+        print(e)
         return 1
+
     if process_runperl_output is not " ":
         return_Edb = process_runperl_output[0].split("\n")[0]
         try:
-            print return_Edb
+            print(return_Edb)
             return float(return_Edb)
-        except Exception,e:
+        except Exception as e:
             return_Edb = 0
+
             return return_Edb
 
     #return float(return_Edb)

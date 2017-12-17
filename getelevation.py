@@ -1,7 +1,7 @@
 # Copyright Google Inc. 2010 All Rights Reserved
 # modified by SI CHEN
 import simplejson
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 ELEVATION_BASE_URL = 'http://maps.google.com/maps/api/elevation/json'
 CHART_BASE_URL = 'http://chart.apis.google.com/chart'
@@ -20,12 +20,12 @@ def getChart(chartData, chartDataScaling="-500,5000", chartType="lc",chartLabel=
     dataString = 't:' + ','.join(str(x) for x in chartData)
     chart_args['chd'] = dataString.strip(',')
 
-    chartUrl = CHART_BASE_URL + '?' + urllib.urlencode(chart_args)
+    chartUrl = CHART_BASE_URL + '?' + urllib.parse.urlencode(chart_args)
 
     print("")
     print("Elevation Chart URL:")
     print("")
-    print chartUrl
+    print(chartUrl)
 
 def getGoogleElevationData(path="36.578581,-118.291994|36.23998,-116.83171",samples="100",sensor="false", **elvtn_args):
     elvtn_args.update({
@@ -35,9 +35,9 @@ def getGoogleElevationData(path="36.578581,-118.291994|36.23998,-116.83171",samp
     })
 
 
-    url = ELEVATION_BASE_URL + '?' + urllib.urlencode(elvtn_args)
-    response = simplejson.load(urllib.urlopen(url))
-    print response
+    url = ELEVATION_BASE_URL + '?' + urllib.parse.urlencode(elvtn_args)
+    response = simplejson.load(urllib.request.urlopen(url))
+    print(response)
     #print response
 
 
@@ -67,11 +67,11 @@ if __name__ == '__main__':
 
     # Collect the Latitude/Longitude input string
     # from the user
-    startStr = raw_input('Enter the start latitude,longitude value (default Mt. Whitney) --> ').replace(' ','')
+    startStr = input('Enter the start latitude,longitude value (default Mt. Whitney) --> ').replace(' ','')
     if not startStr:
       startStr = "36.578581,-118.291994"
 
-    endStr = raw_input('Enter the end latitude,longitude value (default Death Valley) --> ').replace(' ','')
+    endStr = input('Enter the end latitude,longitude value (default Death Valley) --> ').replace(' ','')
     if not endStr:
       endStr = "36.23998,-116.83171"
 

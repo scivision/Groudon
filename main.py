@@ -34,7 +34,9 @@ def get_job():
     dataset = cur.fetchall()
     cur.close()
     conn.close()
+
     return dataset
+
 
 def split_job(dataset):
     jobs={}
@@ -43,9 +45,10 @@ def split_job(dataset):
     for job in jobs:
         yield list(jobs.get(job,()))
 
+
 def split_parameters(dataset):
     simulation_paras = []
-    
+
     dataset = dataset.split("END,")
     for data in dataset:
         parameters_set =  data.split(",")
@@ -59,9 +62,10 @@ def do_simulation(job):
     try:
         running_id = job[0][1]
         parameters = job[0][2]
-    except Exception,e:
-        print "ERROR- Point Num ERROR OR Lack LAT LNG"
+    except Exception as e:
+        print("ERROR- Point Num ERROR OR Lack LAT LNG")
         mark_as_complete(job[0])
+
         return 1
 
     para_set = split_parameters(parameters)
@@ -98,33 +102,33 @@ def run_GRWAVE(running_id,lat1,lng1,lat2,lng2,freq,pol,height,height_r,bandwidth
 # calculate the distance between two points
     try:
         dis = CalDis(lat1,lng1,lat2,lng2)
-    except Exception,e:
-        print "error cal dis"
+    except Exception as e:
+        print("error cal dis")
         mark_as_complete(running_id)
     try:
         con1 = getConductivity(lat1,lng1)
-    except Exception,e:
-        print "error cal con1"
+    except Exception as e:
+        print("error cal con1")
         mark_as_complete(running_id)
 
     try:
         geo_height = getPathInfo(lat1,lng1,lat2,lng2)
         if geo_height == None:
-            raise Exception,e
+            raise Exception(e)
         elif geo_height < 0:
             geo_height = 0
-    except Exception,e:
-        print e
-        print "cannot grab geo_info"
+    except Exception as e:
+        print(e)
+        print("cannot grab geo_info")
         mark_as_complete(running_id)
     try:
         geo_height2 = formatPathInfo(geo_height)
         if geo_height2 < 0:
             geo_height2 = 0
-    except Exception,e:
+    except Exception as e:
         mark_as_complete(running_id)
-        print "geo height grab error"
-        print geo_height
+        print("geo height grab error")
+        print(geo_height)
         return 1
     try:
         #hei1_mean = getHeight_mean(lat1,lng1,lat2,lng2)
@@ -138,9 +142,9 @@ def run_GRWAVE(running_id,lat1,lng1,lat2,lng2,freq,pol,height,height_r,bandwidth
             HRR = getHRR(geo_height2) + height_r
         #HTT = getHTT(geo_height2) + height
         #HRR = getHRR(geo_height2) + height_r
-        print "HTT,HRR:",HTT,HRR
-    except Exception,e:
-        print "error calculate HTT HRR"
+        print(("HTT,HRR:",HTT,HRR))
+    except Exception as e:
+        print("error calculate HTT HRR")
         mark_as_complete(running_id)
         return 1
     try:
@@ -149,15 +153,15 @@ def run_GRWAVE(running_id,lat1,lng1,lat2,lng2,freq,pol,height,height_r,bandwidth
         if res is not None:
             save_Et(res,running_id)
 #@ NOW FIX THIS
-    except Exception,e:
-        print e
+    except Exception as e:
+        print(e)
         mark_as_complete(running_id)
         return 1
-    
+
     try:
         fp = open("inp","w")
-    except Exception,e:
-        print "error open"
+    except Exception as e:
+        print("error open")
     command1 = "HTT {} \n\
                HRR {} \n\
                IPOLRN {}\n\
@@ -198,42 +202,42 @@ def run_GRWAVE(running_id,lat1,lng1,lat2,lng2,freq,pol,height,height_r,bandwidth
     try:
         process1 = subprocess.Popen(rungrwave,shell=True)
         process1.wait()
-    except Exception,E:
-        print "Error process 1"
+    except Exception as E:
+        print("Error process 1")
         mark_as_complete(running_id)
         return 1
     try:
         process2 = subprocess.Popen(rungrwave_for_ns2,shell=True)
         process2.wait()
-    except Exception,e:
-        print "Error process 2"
+    except Exception as e:
+        print("Error process 2")
         mark_as_complete(running_id)
         return 1
     try:
         process3 = subprocess.Popen(run_get_KM,shell=True)
         process3.wait()
-    except Exception,E:
-        print "Error process 3"
+    except Exception as E:
+        print("Error process 3")
         mark_as_complete(running_id)
         return 1
     try:
         process4 = subprocess.Popen(run_get_BPL,shell=True)
         process4.wait()
-    except Exception,E:
-        print "Error process 4"
+    except Exception as E:
+        print("Error process 4")
         mark_as_complete(running_id)
         return 1
     try:
         DAT_KM = read_data("KM")
         DAT_BPL = read_data("BPL")[3:]
-    except Exception,E:
-        print "Error process read data"
+    except Exception as E:
+        print("Error process read data")
         mark_as_complete(running_id)
         return 1
     try:
         PathLossExp = getPathLossExp(DAT_KM,DAT_BPL)
-    except Exception,e:
-        print "Error get pathlossexp"
+    except Exception as e:
+        print("Error get pathlossexp")
         mark_as_complete(running_id)
         return 1
     result_set = []
@@ -253,30 +257,30 @@ def run_NS(running_id,result_set):
         dis_ns = " "+str(dis*1000)+" "
         run_ns2 = os.getcwd()+"/ns dsr.tcl "
         run_ns2 = run_ns2+str(0.1)+bandwidth_ns+freq_ns+dis_ns
-        print run_ns2
+        print(run_ns2)
         process = subprocess.Popen(run_ns2,shell=True)
         process.wait()
-    except Exception,e:
-        print "run_ns2 error"
+    except Exception as e:
+        print("run_ns2 error")
         mark_as_complete(running_id)
     try:
         run_ana_throughput = "perl mea.pl "+TRACE_FILE_NAME
         process_out =\
         subprocess.Popen(run_ana_throughput,stdout=subprocess.PIPE,shell=True).communicate()
-    except Exception,e:
-        print "run_ana_throughput error"
-    print process_out[0]
-    print len(process_out[0].split(","))
+    except Exception as e:
+        print("run_ana_throughput error")
+    print((process_out[0]))
+    print((len(process_out[0].split(","))))
     save_res(process_out[0],"throughput",running_id)
     try:
         run_ana_del = "perl del.pl "+TRACE_FILE_NAME
         process_out =\
         subprocess.Popen(run_ana_del,stdout=subprocess.PIPE,shell=True).communicate()
-    except Exception,e:
-        print "run_ana_del error"
+    except Exception as e:
+        print("run_ana_del error")
         mark_as_complete(running_id)
-    print process_out[0]
-    print len(process_out[0].split(","))
+    print((process_out[0]))
+    print((len(process_out[0].split(","))))
     save_res(process_out[0],"delay",running_id)
 
     return 0
@@ -285,15 +289,15 @@ def run_NS(running_id,result_set):
 def upload_FINAL_RESULT(running_id):
     try:
         random_num = upload_res()
-    except Exception,e:
+    except Exception as e:
         mark_as_complete(running_id)
-        print "upload res error"
+        print("upload res error")
         return 1
     try:
         save_res(random_num,"res",running_id)
-    except Exception,e:
+    except Exception as e:
         mark_as_complete(running_id)
-        print "save res error"
+        print("save res error")
         return 1
     #K = subprocess.Popen(runget_result,shell=True,stdout=subprocess.PIPE)
     #req0 = mark_as_complete(running_id)
@@ -308,7 +312,7 @@ def save_res(data,name,running_id):
     conn = connMysql()
     cur = conn.cursor()
     sql = "UPDATE `gr`.`main` SET `"+name+"` = \""+data+"\" where running_id= " +str(running_id)
-    print sql
+    print(sql)
     cur.execute(sql)
     conn.commit()
     cur.close
@@ -326,11 +330,11 @@ def save_Et(Et,running_id):
         new_data = pre_res+","+str(Et)
     else:
         new_data = str(Et)
-    print new_data
+    print(new_data)
 
     sql = "UPDATE `gr`.`main` SET `Et` = \""+new_data+"\" where running_id="+\
             str(running_id)
-    print sql
+    print(sql)
     cur.execute(sql)
     conn.commit()
     cur.close()
@@ -341,8 +345,8 @@ def upload_res():
     try:
         shutil.copy2(os.getcwd()+"/out","/home/quake0day/www/res/"+random_num)
         shutil.copy2(os.getcwd()+"/simple.tr","/home/quake0day/www/tr/"+random_num)
-    except Exception,e:
-        print "upload error"
+    except Exception as e:
+        print("upload error")
     return random_num
 
 def save_res_plot(res,running_id):
@@ -350,7 +354,7 @@ def save_res_plot(res,running_id):
     cur = conn.cursor()
     sql = "UPDATE `gr`.`main` SET `throughput` =\""+res+"\" where running_id=\
     "+str(running_id)
-    print sql
+    print(sql)
     cur.execute(sql)
     conn.commit()
     cur.close()
@@ -385,12 +389,12 @@ if __name__ == '__main__':
         sleep(1)
         try:
             job = split_job(get_job())
-        except Exception,e:
+        except Exception as e:
             pass
         try:
-            task = job.next()
+            task = next(job)
             do_simulation(task)
 
             sleep(1)
-        except Exception,e:
+        except Exception as e:
             pass

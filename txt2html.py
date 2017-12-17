@@ -1,8 +1,11 @@
+#!/usr/bin/env python
 import re
 import cgi
 
 re_string = re.compile(r'(?P<htmlchars>[<&>])|(?P<space>^[ \t]+)|(?P<lineend>\r\n|\r|\n)|(?P<protocal>(^|\s)((http|ftp)://.*?))(\s|$)', re.S|re.M|re.I)
+
 def plaintext2html(text, tabstop=4):
+
     def do_sub(m):
         c = m.groupdict()
         if c['htmlchars']:
@@ -26,6 +29,6 @@ def plaintext2html(text, tabstop=4):
             if last in ['\n', '\r', '\r\n']:
                 last = '<br>'
             return '%s<a href="%s">%s</a>%s' % (prefix, url, url, last)
-    return re.sub(re_string, do_sub, text)
 
+    return re.sub(re_string, do_sub, text)
 

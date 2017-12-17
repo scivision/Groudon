@@ -26,8 +26,7 @@ We are using publicly available International Telecommunication Union (ITU)-R [G
 
 compile GRWAVE:
 ```sh
-cd grwave/
-gfortran grwave.for -o ../gr
+gfortran grwave/grwave.for -o gr
 ```
 
 

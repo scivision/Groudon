@@ -1,4 +1,4 @@
-import sys
+#!/usr/bin/env python
 
 a = [',','\n','\r','\'','<','>','&','"','\\']
 b = [' ','<br>',' ','&#39;','&lt;','&gt;','&amp;','&#34;','&#92;']
@@ -11,5 +11,6 @@ def trim(data):
 				data = data.replace(data[i],' ')
 		
 		i +=1
+
 	return data
 

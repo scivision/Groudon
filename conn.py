@@ -8,6 +8,6 @@ def connMysql():
         conn =\
         MySQLdb.connect(host='localhost',user='root',passwd='chensi',db='gr')
         return conn
-    except Exception,e:
-        print e
+    except Exception as e:
+        print(e)
         sys.exit()

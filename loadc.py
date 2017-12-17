@@ -119,7 +119,7 @@ def loadSedmapDat_mat(data):
         conductivity_mat.append(loadSedmapDat(lat,lng))
     return conductivity_mat
 
-print loadSedmapDat(-45,171.23123)
+print(loadSedmapDat(-45,171.23123))
 
 #print getConductivity(-39.54641191968671,174.0234375)
 #print getConductivity(-39.50404070558415,174.0673828125)
