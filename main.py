@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf8 -*-
 import subprocess
 import os
@@ -5,11 +6,8 @@ from time import sleep
 import random
 import shutil
 #
-from conn import connMysql
-from caldistance import CalDis
-from getPathLossExp import read_data, getPathLossExp
-from loadc import getConductivity
-from getHeight import getPathInfo, formatPathInfo,getHTT,getHRR
+from Groudon import connMysql, CalDis,getPathInfo, formatPathInfo,getHTT,getHRR,read_data, getPathLossExp
+from Groudon.loadc import getConductivity
 from millinton import cal_milliton
 
 MIN_POINT = 2
@@ -44,7 +42,6 @@ def split_parameters(dataset):
         parameters_set =  data.split(",")
         simulation_paras.append(parameters_set)
     return simulation_paras
-
 
 
 def do_simulation(job):
@@ -83,7 +80,7 @@ def do_simulation(job):
 # Upload the result
             upload_FINAL_RESULT(running_id)
     mark_as_complete(running_id)
-    return 0
+
         #print freq,pol,height,height_r,bandwidth
 
 def run_GRWAVE(running_id,lat1,lng1,lat2,lng2,freq,pol,height,height_r,bandwidth):
@@ -236,6 +233,7 @@ def run_GRWAVE(running_id,lat1,lng1,lat2,lng2,freq,pol,height,height_r,bandwidth
     result_set.append(dis)
     return result_set
 
+
 def run_NS(running_id,result_set):
     bandwidth = result_set[0]
     freq = result_set[1]
@@ -273,8 +271,6 @@ def run_NS(running_id,result_set):
     print((len(process_out[0].split(","))))
     save_res(process_out[0],"delay",running_id)
 
-    return 0
-
 
 def upload_FINAL_RESULT(running_id):
     try:
@@ -294,9 +290,12 @@ def upload_FINAL_RESULT(running_id):
     #save_res(show_res("out"),job[0])
     #print show_res("out")
 
-def show_res(file):
-    fout = open(file,"r")
-    return fout.read()
+
+def show_res(fn):
+    with open(fn,"r") as f:
+
+        return f.read()
+
 
 def save_res(data,name,running_id):
     conn = connMysql()
@@ -330,6 +329,7 @@ def save_Et(Et,running_id):
     cur.close()
     conn.close()
 
+
 def upload_res():
     random_num = str(random.randrange(0,10001,2))
     try:
@@ -338,6 +338,7 @@ def upload_res():
     except Exception as e:
         print("upload error")
     return random_num
+
 
 def save_res_plot(res,running_id):
     conn = connMysql()
@@ -349,7 +350,7 @@ def save_res_plot(res,running_id):
     conn.commit()
     cur.close()
     conn.close()
-    return 0
+
 
 def mark_as_complete(running_id):
     conn = connMysql()
@@ -360,7 +361,7 @@ def mark_as_complete(running_id):
     conn.commit()
     cur.close()
     conn.close()
-    return 0
+
 
 def clean_pre_data(running_id):
     conn = connMysql()
@@ -371,20 +372,22 @@ def clean_pre_data(running_id):
     conn.commit()
     cur.close()
     conn.close()
-    return 0
+
 
 if __name__ == '__main__':
-    #main
-    while 1:
-        sleep(1)
+
+    while True:
         try:
             job = split_job(get_job())
         except Exception as e:
-            pass
+            print(e)
+
         try:
             task = next(job)
             do_simulation(task)
 
             sleep(1)
         except Exception as e:
-            pass
+            print(e)
+
+        sleep(1)
