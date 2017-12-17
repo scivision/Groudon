@@ -1,3 +1,22 @@
+C***********************************************************************
+C*                                                                     *
+C*   GRWAVE (RELAESE 2   18/02/1985  ).                                *
+C*   COPYRIGHT (C)   GEC PLC  1985.                                    *
+C*                                                                     *
+C***********************************************************************
+C
+C================================================================
+C=         MODIFIED FOR MICROSOFT FORTRAN VERSION 4.0           = 
+C=         FOR MS-DOS PERSONAL COMPUTERS                        =
+C=          July 1988/10DEC88-jfc                               =
+C=          CCIR United States Study Group 5                    =
+C=          Dr. John F. Cavanagh                                =   
+C=          Ms. Sheila A. Thurston                              =
+C=          Naval Surface Warfare Center                        =
+C=          Code F405                                           =
+C=          Dahlgren, VA 22448-5000                             =
+C================================================================
+C
       PROGRAM ROTHRM
 C     ROTHRM=STEVE ROTHERAM
 C     FORTRAN 77
