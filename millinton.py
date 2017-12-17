@@ -4,7 +4,7 @@ import random
 import os
 import functools
 #
-import getHeight
+import Groudon.getHeight as getHeight
 from loadc import getConductivity_mat
 from loadc import DEFAULT_RES
 from caldistance import CalDis

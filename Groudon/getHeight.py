@@ -1,4 +1,4 @@
-from getelevation import getGoogleElevationData
+from .getelevation import getGoogleElevationData
 
 #def getPathInfo(running_id):
 #    conn = connMysql()
@@ -42,8 +42,3 @@ def getHTT(geo_height):
 
 def getHRR(geo_height):
     return float(geo_height[-1][2])
-
-#geo = formatPathInfo(getPathInfo("15"))
-#print geo
-#print getHRR(geo)
-
