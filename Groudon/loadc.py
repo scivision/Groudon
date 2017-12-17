@@ -13,7 +13,7 @@
 import PIL
 import numpy as np
 
-BG='../data/NewZealand.png'
+BG='data/NewZealand.png'
 MAP="../data/sedmap.dat"
 
 LAT_SW = -47.27
@@ -30,27 +30,29 @@ def getConductivity_c(lat,lng):
     width,height = im.size
     lat_diff = abs(LAT_SW - LAT_NE)
     lng_diff = abs(LNG_SW - LNG_NE)
-    lng_one_pix = lng_diff / width
+#    lng_one_pix = lng_diff / width
     conductivity_c = pixels[
             int(abs(lng -LNG_SW) * width / lng_diff),
             int(abs(lat-LAT_NE) * height / lat_diff)]
     return conductivity_c
 
 def getConductivity_c_mat(data):
-    conductivity_c_mat = []
+    conductivity_c_mat = np.zeros(data.shape[0],dtype=int)
     im = PIL.Image.open(BG)
     pixels = im.load()
     width,height = im.size
     lat_diff = abs(LAT_SW - LAT_NE)
     lng_diff = abs(LNG_SW - LNG_NE)
-    lng_one_pix = lng_diff / width
-    for item in data:
-        lat = float(item[0])
-        lng = float(item[1])
-        conductivity_c_mat.append(pixels[
-                int(abs(lng -LNG_SW) * width / lng_diff),
-                int(abs(lat-LAT_NE) * height / lat_diff)])
+#    lng_one_pix = lng_diff / width
+    for i,d in enumerate(data):
+        lat = d[0]
+        lng = d[1]
+        conductivity_c_mat[i] = pixels[
+                int(abs(lng-LNG_SW) * width / lng_diff),
+                int(abs(lat-LAT_NE) * height / lat_diff)]
+
     return conductivity_c_mat
+
 
 def convert_mat(conductivity_c_mat):
     res =[]
@@ -93,9 +95,12 @@ def convert(conductivity_c):
     return res
 
 def getConductivity_mat(data):
+
     return convert_mat(getConductivity_c_mat(data))
 
+
 def getConductivity(lat,lng):
+
     return convert(getConductivity_c(float(lat),float(lng)))
 
 

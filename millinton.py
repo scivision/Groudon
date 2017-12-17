@@ -3,11 +3,10 @@ import subprocess
 import random
 import os
 import functools
+import numpy as np
 #
-import Groudon.getHeight as getHeight
-from loadc import getConductivity_mat
-from loadc import DEFAULT_RES
-from caldistance import CalDis
+from Groudon.loadc import getConductivity_mat, DEFAULT_RES
+import Groudon
 
 
 def cal_milliton(geo_info,MFREQ,MIPOL,dis,HTT,HRR,height,height_r):
@@ -34,7 +33,8 @@ def cal_milliton(geo_info,MFREQ,MIPOL,dis,HTT,HRR,height,height_r):
                 MSIGMA2 = conductivity[i+1][1]
                 MEPSLON2 = cal_MEPSLON(MSIGMA2,MFREQ)
                 MDIST =\
-                [CalDis(lat[0],lng[0],lat[1],lng[1]),CalDis(lat[1],lng[1],lat[2],lng[2])]
+                [Groudon.CalDis(lat[0],lng[0],lat[1],lng[1]),
+                 Groudon.CalDis(lat[1],lng[1],lat[2],lng[2])]
                 if i == 0:
                     d[0] = MDIST[0]
                 else:
@@ -86,9 +86,8 @@ def find_path_with_diff_conductivity(geo_info):
     data = []
     con_pre = 0
     conductivity = []
-    for item in geo_info:
-        #print item[0],item[1]
-        data.append([item[0],item[1],item[2]])
+
+    data = np.asarray(geo_info)
     conc = getConductivity_mat(data)
     i = 0
     for con in conc:
@@ -166,8 +165,8 @@ def call_gr(MIPOL,MFREQ,MEPSLON,MSIGMA,MDIST,h):
     #return float(return_Edb)
 
 if __name__ == '__main__':
-    geo_info = getHeight.getPathInfo("41")
-    geo_info = getHeight.formatPathInfo(geo_info)
+    geo_info = Groudon.getPathInfo("41","51","43","51")
+    geo_info = Groudon.formatPathInfo(geo_info)
 
     find_path_with_diff_conductivity(geo_info)
 
