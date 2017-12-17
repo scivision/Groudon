@@ -37,7 +37,7 @@ def getConductivity_c(lat,lng):
     return conductivity_c
 
 def getConductivity_c_mat(data):
-    conductivity_c_mat = np.zeros(data.shape[0],dtype=int)
+    conductivity_c_mat = np.zeros((data.shape[0],3),dtype=int)
     im = PIL.Image.open(BG)
     pixels = im.load()
     width,height = im.size
@@ -47,9 +47,7 @@ def getConductivity_c_mat(data):
     for i,d in enumerate(data):
         lat = d[0]
         lng = d[1]
-        conductivity_c_mat[i] = pixels[
-                int(abs(lng-LNG_SW) * width / lng_diff),
-                int(abs(lat-LAT_NE) * height / lat_diff)]
+        conductivity_c_mat[i,:] = pixels[int(abs(lng-LNG_SW) * width / lng_diff), int(abs(lat-LAT_NE) * height / lat_diff)]
 
     return conductivity_c_mat
 

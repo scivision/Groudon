@@ -114,20 +114,19 @@ def call_gr(MIPOL,MFREQ,MEPSLON,MSIGMA,MDIST,h):
     # however I like it :)
     filename = str(random.randrange(0,1000001,2))
     try:
-        fp = open(os.getcwd()+"/millington_file/"+filename,"w")
-        command = "HTT {} \n\
-                   HRR {} \n\
-                   IPOLRN {} \n\
-                   FREQ {} \n\
-                   SIGMA {} \n\
-                   EPSLON {} \n\
-                   dmin {} \n\
-                   dmax {} \n\
-                   GO\
-                   ".format(str(HTT),str(HRR),str(MIPOL),str(MFREQ),str(MSIGMA),str(MEPSLON),str(MDIST),str(MDIST+1))
-        #print command
-        fp.write(command)
-        fp.close()
+        with open(os.getcwd()+"/millington_file/"+filename, "w") as f:
+            command = "HTT {} \n\
+                       HRR {} \n\
+                       IPOLRN {} \n\
+                       FREQ {} \n\
+                       SIGMA {} \n\
+                       EPSLON {} \n\
+                       dmin {} \n\
+                       dmax {} \n\
+                       GO\
+                       ".format(str(HTT),str(HRR),str(MIPOL),str(MFREQ),str(MSIGMA),str(MEPSLON),str(MDIST),str(MDIST+1))
+            #print command
+            f.write(command)
     except Exception as e:
         print("ERROR CREATE GR FILE IN MILLINTON.PY")
 
@@ -165,11 +164,11 @@ def call_gr(MIPOL,MFREQ,MEPSLON,MSIGMA,MDIST,h):
     #return float(return_Edb)
 
 if __name__ == '__main__':
-    geo_info = Groudon.getPathInfo("41","51","43","51")
+    geo_info = Groudon.getPathInfo("-41","171","-42","172")
     geo_info = Groudon.formatPathInfo(geo_info)
 
     find_path_with_diff_conductivity(geo_info)
 
-    #call_gr("1","900","0.005","30","200","4")
+    call_gr("1","900","0.005","30","200","4")
 
     #cal_milliton(geo_info,900,1)
