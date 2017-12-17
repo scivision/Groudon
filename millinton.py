@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 import subprocess
-from loadc import getConductivity_mat
-from loadc import DEFAULT_RES
-from caldistance import CalDis
 import random
 import os
 import functools
+#
+from loadc import getConductivity_mat
+from loadc import DEFAULT_RES
+from caldistance import CalDis
 
 #geo_info = getHeight.getPathInfo("41")
 #geo_info = getHeight.formatPathInfo(geo_info)

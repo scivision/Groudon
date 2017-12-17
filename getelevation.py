@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # Copyright Google Inc. 2010 All Rights Reserved
 # modified by SI CHEN
 import simplejson
@@ -27,6 +28,7 @@ def getChart(chartData, chartDataScaling="-500,5000", chartType="lc",chartLabel=
     print("")
     print(chartUrl)
 
+
 def getGoogleElevationData(path="36.578581,-118.291994|36.23998,-116.83171",samples="100",sensor="false", **elvtn_args):
     elvtn_args.update({
         'path': path,
@@ -54,10 +56,10 @@ def getGoogleElevationData(path="36.578581,-118.291994|36.23998,-116.83171",samp
     #print pathArray
 
     # Create the chart passing the array of elevation data
-    #getChart(chartData=elevationArray)   
+    #getChart(chartData=elevationArray)
 
 if __name__ == '__main__':
-        
+
     print("")
     print("Elevation Chart Maker 1.0")
     print("")

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 '''
 #=============================================================================
 #     FileName: caldistance.py
@@ -12,7 +13,7 @@
 #=============================================================================
 '''
 import math
-import sys 
+import sys
 
 
 EARTH_RADIUS = 6378137.0
@@ -32,11 +33,11 @@ def CalDis(lat1,lng1,lat2,lng2):
    # s = 2 * math.asin(math.sqrt(math.pow(math.sin(a/2),2) + \
    #     math.cos(radlat1)*math.cos(radlat2)*math.pow(math.sin(b/2),2)))
     #print s
-   # s = round(s*10000)/10000 
+   # s = round(s*10000)/10000
    # return s
 
 
-    
+
 
 
 if __name__== '__main__':

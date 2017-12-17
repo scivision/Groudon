@@ -1,6 +1,3 @@
-import MySQLdb
-import re
-from conn import connMysql
 from getelevation import getGoogleElevationData
 
 #def getPathInfo(running_id):
@@ -35,9 +32,9 @@ def formatPathInfo(path_info):
         dataset.append(resultset["location"]['lng'])
         dataset.append(resultset['elevation'])
         geo_dataset.append(dataset)
-        
+
     return geo_dataset
-            
+
 #@formatPathInfo(getpathinfo(90,-118,50,-116))
 
 def getHTT(geo_height):

@@ -1,25 +1,15 @@
 # -*- coding: utf8 -*-
 import subprocess
 import os
-import sys
-import time
 from time import sleep
-import MySQLdb
 import random
 import shutil
+#
 from conn import connMysql
 from caldistance import CalDis
-from getPathLossExp import read_data
-from getPathLossExp import getPathLossExp
+from getPathLossExp import read_data, getPathLossExp
 from loadc import getConductivity
-from trim import trim
-from txt2image import txt2image
-from txt2html import plaintext2html
-import getHeight
-from getHeight import getPathInfo
-from getHeight import formatPathInfo
-from getHeight import getHTT
-from getHeight import getHRR
+from getHeight import getPathInfo, formatPathInfo,getHTT,getHRR
 from millinton import cal_milliton
 
 MIN_POINT = 2
@@ -114,7 +104,7 @@ def run_GRWAVE(running_id,lat1,lng1,lat2,lng2,freq,pol,height,height_r,bandwidth
     try:
         geo_height = getPathInfo(lat1,lng1,lat2,lng2)
         if geo_height == None:
-            raise Exception(e)
+            raise Exception
         elif geo_height < 0:
             geo_height = 0
     except Exception as e:

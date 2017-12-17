@@ -11,7 +11,6 @@
 #=============================================================================
 '''
 import Image
-import math
 
 LAT_SW = -47.27
 LAT_NE = -34.107
@@ -28,7 +27,7 @@ def getConductivity_c(lat,lng):
     lat_diff = abs(LAT_SW - LAT_NE)
     lng_diff = abs(LNG_SW - LNG_NE)
     lng_one_pix = lng_diff / width
-    conductivity_c = pixels[ 
+    conductivity_c = pixels[
             int(abs(lng -LNG_SW) * width / lng_diff),
             int(abs(lat-LAT_NE) * height / lat_diff)]
     return conductivity_c
@@ -44,7 +43,7 @@ def getConductivity_c_mat(data):
     for item in data:
         lat = float(item[0])
         lng = float(item[1])
-        conductivity_c_mat.append(pixels[ 
+        conductivity_c_mat.append(pixels[
                 int(abs(lng -LNG_SW) * width / lng_diff),
                 int(abs(lat-LAT_NE) * height / lat_diff)])
     return conductivity_c_mat
