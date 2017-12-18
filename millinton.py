@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from pathlib import Path
 import subprocess
-import random
+import tempfile
 import os
 import functools
 import numpy as np
@@ -107,34 +107,33 @@ def find_path_with_diff_conductivity(geo_info):
 #cal_milliton(geo_info,900,1)
 
 def call_gr(p):
-    fn = str(random.randrange(0,1000001,2))
-
-    with open(os.getcwd()+"/millington_file/"+fn, "w") as f:
-        cmd= (f"HTT {p['htt']}\n"
-              f"HRR {p['hrr']}\n"
-              f"IPOLRN {p['ipolrn']}\n"
-              f"FREQ {p['freq']}\n"
-              f"SIGMA {p['sigma']}\n"
-              f"EPSLON {p['epslon']}\n"
-              f"DMIN {p['dmin']}\n"
-              f"DMAX {p['dmax']}\n"
-              "GO")
-
-        print(cmd)
-        f.write(cmd)
-
     bdir = (Path.cwd() / "millington_file")
     bdir.mkdir(exist_ok=True)
-    ofn = bdir/(fn+"_out")
+    fn = Path(tempfile.mkstemp(dir=bdir)[1])
+
+    cmd= (f"HTT {p['htt']}\n"
+          f"HRR {p['hrr']}\n"
+          f"IPOLRN {p['ipolrn']}\n"
+          f"FREQ {p['freq']}\n"
+          f"SIGMA {p['sigma']}\n"
+          f"EPSLON {p['epslon']}\n"
+          f"DMIN {p['dmin']}\n"
+          f"DMAX {p['dmax']}\n"
+          "GO")
+
+    print(cmd)
+    fn.write_text(cmd)
+
+    ofn = fn.parent / (fn.name +"_out")
 # %%
     grcmd = [str(Path.cwd()/"gr"),
-             "<", str(bdir/fn),
+             "<", str(fn),
              ">", str(ofn)]
     print(' '.join(grcmd))
 
     subprocess.check_call(grcmd)
 # %%
-    plcmd = ["perl","ana.pl", ofn]
+    plcmd = ["perl","ana.pl", str(ofn)]
 
     ppl = subprocess.check_output(plcmd)
 
