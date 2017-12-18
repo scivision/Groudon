@@ -49,8 +49,8 @@ def cal_milliton(geo_info, p:dict):
                     d[1] = d[1] + dist[1]
                 p3['dmin'] = d[1]
 
-                HTT_HRR = conductivity[i:i+2,2] + p['hrr']
-                HTT_HRR_F = (conductivity[i+1,2]+p['hrr'], p['hrr'])
+                HTT_HRR = conductivity[i,2] + p['hrr']
+                HTT_HRR_F = conductivity[i+1,2] + p['hrr']
 
                 p1['htt'] = HTT_HRR
                 p2['htt'] = HTT_HRR
