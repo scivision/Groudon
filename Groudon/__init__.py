@@ -1,12 +1,15 @@
 #-*- coding:utf-8 -*-
 import math
+import numpy as np
 from scipy import stats
 import simplejson
-import urllib.request, urllib.parse, urllib.error
+import requests
+import urllib.parse
+from io import StringIO
 #
 EARTH_RADIUS = 6378137.0
-ELEVATION_BASE_URL = 'http://maps.google.com/maps/api/elevation/json'
-CHART_BASE_URL = 'http://chart.apis.google.com/chart'
+ELEVATION_BASE_URL = 'https://maps.google.com/maps/api/elevation/json'
+CHART_BASE_URL = 'https://chart.apis.google.com/chart'
 
 #def getPathInfo(running_id):
 #    conn = connMysql()
@@ -34,34 +37,31 @@ def trim(data):
     return data
 #
 def getPathInfo(lat1,lng1,lat2,lng2):
-###### Change HERE!!!!!!!!!!!!!!
-    startStr = str(lat1)+","+str(lng1)
-    endStr = str(lat2)+","+str(lng2)
+    startStr = f'{lat1},{lng1}'
+    endStr = f'{lat2},{lng2}'
     pathStr = startStr + "|" + endStr
     data = getGoogleElevationData(pathStr)
 
     return data
 
 
-def formatPathInfo(path_info):
-#    print path_info
-    geo_dataset = []
-    for resultset in path_info['results']:
-        dataset = []
-        dataset.append(resultset["location"]['lat'])
-        dataset.append(resultset["location"]['lng'])
-        dataset.append(resultset['elevation'])
-        geo_dataset.append(dataset)
+def formatPathInfo(pinf):
+    gd = np.empty((len(pinf['results']),3))
+    for i,r in enumerate(pinf['results']):
+        gd[i,:] = (r["location"]['lat'],
+                   r["location"]['lng'],
+                   r['elevation'])
 
-    return geo_dataset
+    return gd
 
-#@formatPathInfo(getpathinfo(90,-118,50,-116))
 
 def getHTT(geo_height):
     return float(geo_height[0][2])
 
+
 def getHRR(geo_height):
     return float(geo_height[-1][2])
+
 
 def getChart(chartData, chartDataScaling="-500,5000", chartType="lc",chartLabel="Elevation in Meters",chartSize="500x160", chartColor="orange", **chart_args):
     chart_args.update({
@@ -94,15 +94,16 @@ def getGoogleElevationData(path="36.578581,-118.291994|36.23998,-116.83171",samp
 
 
     url = ELEVATION_BASE_URL + '?' + urllib.parse.urlencode(elvtn_args)
-    response = simplejson.load(urllib.request.urlopen(url))
-    print(response)
-    #print response
+    response = requests.get(url)
+    if response.status_code != 200:
+        raise ConnectionError('could not reach Google for elevation conversion')
 
+    js = simplejson.load(StringIO(response.text))
 
     # Create a dictionary for each results[] object
     #elevationArray = []
     #pathArray = []
-    return response
+    return js
 
     #for resultset in response['results']:
 #      elevationArray.append(resultset['elevation'])

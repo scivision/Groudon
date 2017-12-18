@@ -3,14 +3,14 @@
 #
 
 gr: grwave/grwave.for
-	$(FC) -o $@ $<
+	$(FC) -o $@ $< -g -fbacktrace
 
 clean:
-	@- $(RM) *.pyc
-	@- $(RM) KM
-	@- $(RM) inp*
-	@- $(RM) out*
-	@- $(RM) BPL
-	@- $(RM) -rf millington_file
+	$(RM) gr
+	$(RM) KM
+	$(RM) inp*
+	$(RM) out*
+	$(RM) BPL
+	$(RM) -r millington_file
 
 

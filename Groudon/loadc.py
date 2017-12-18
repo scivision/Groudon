@@ -52,10 +52,11 @@ def getConductivity_c_mat(data):
     return conductivity_c_mat
 
 
-def convert_mat(conductivity_c_mat):
-    res =[]
-    for conductivity_c in conductivity_c_mat:
-        res.append(convert(conductivity_c))
+def convert_mat(cond):
+    res = np.empty(cond.shape[0])
+    for i,c in enumerate(cond):
+        res[i] = convert(c)
+
     return res
 
 def convert(conductivity_c):
@@ -64,29 +65,29 @@ def convert(conductivity_c):
     res = default_res
     # search the table
     if (conductivity_c == (102,102,102)).all():
-        res = 10 * 10**(-3)
+        res = 10e-3
     elif (conductivity_c == (255,255,0)).all():
-        res = 3 * 10**(-3)
+        res = 3e-3
     elif (conductivity_c == (0,153,0)).all():
-        res = 5 * 10**(-3)
+        res = 5e-3
     elif (conductivity_c == (255,0,255)).all():
-        res = 5 * 10**(-2)
+        res = 5e-2
     elif (conductivity_c == (255,0,0)).all():
-        res = 1 * 10**(-3)
+        res = 1e-3
     elif (conductivity_c == (255,153,0)).all():
-        res = 3 * 10**(-2)
+        res = 3e-2
     elif (conductivity_c == (153,0,51)).all():
-        res = 20 * 10**(-3)
+        res = 20e-3
     elif (conductivity_c == (102,204,255)).all():
-        res = 1.6 * 10**(-3)
+        res = 1.6e-3
     elif (conductivity_c == (0,51,51)).all():
-        res = 1 * 10**(-3)
+        res = 1e-3
     elif (conductivity_c == (51,0,0)).all():
-        res = 0.8 * 10**(-3)
+        res = 0.8e-3
     elif (conductivity_c == (0,0,204)).all():
-        res = 0.2 * 10**(-3)
+        res = 0.2e-3
     elif (conductivity_c == (255,204,204)).all():
-        res = 0.1 * 10**(-3)
+        res = 0.1e-3
 
     return res
 

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
+from __future__ import division
 from pathlib import Path
 import subprocess
 import tempfile
-import os
 import functools
 import numpy as np
 #
@@ -10,40 +10,39 @@ from Groudon.loadc import getConductivity_mat, DEFAULT_RES
 import Groudon
 
 
-def cal_milliton(geo_info,MFREQ,MIPOL,dis,HTT,HRR,height,height_r):
+def cal_milliton(geo_info, p:dict):
     conductivity = find_path_with_diff_conductivity(geo_info)
-    height = float(height)
-    height_r = float(height_r)
-    #print len(conductivity)
-    #print conductivity
 
-    if len(conductivity) > 2: # more than one conductivity
+    if conductivity.shape[0] > 2: # more than one conductivity
         i = 0
         j = 0
         d = [0,0]
         EdB = [0] * 2
+        p1 = p.copy()
+        p2 = p.copy()
         while j < 2:
-            while i < len(conductivity)-2:
-                #print conductivity[i]
-                lat =\
-                [conductivity[i][0][0],conductivity[i+1][0][0],conductivity[i+2][0][0]]
-                lng =\
-                [conductivity[i][0][1],conductivity[i+1][0][1],conductivity[i+2][0][1]]
-                MSIGMA1 = conductivity[i][1]
-                MEPSLON1 = cal_MEPSLON(MSIGMA1,MFREQ)
-                MSIGMA2 = conductivity[i+1][1]
-                MEPSLON2 = cal_MEPSLON(MSIGMA2,MFREQ)
-                MDIST =\
-                [Groudon.CalDis(lat[0],lng[0],lat[1],lng[1]),
-                 Groudon.CalDis(lat[1],lng[1],lat[2],lng[2])]
+            while i < conductivity.shape[0] - 2:
+                lat = conductivity[i:i+2, 0]
+                lng = conductivity[i:i+2, 1]
+
+                p1['sigma'] = conductivity[i,3]
+                p1 = cal_MEPSLON(p1)
+
+                p2['sigma'] = conductivity[i+1,3]
+                p2= cal_MEPSLON(p2)
+
+                dist =  [Groudon.CalDis(lat[0],lng[0],lat[1],lng[1]),
+                         Groudon.CalDis(lat[1],lng[1],lat[2],lng[2])]
+
                 if i == 0:
-                    d[0] = MDIST[0]
+                    d[0] = dist[0]
                 else:
                     d[0] = d[1]
+
                 if i == 0:
-                    d[1] = functools.reduce(lambda x,y:x+y,MDIST)
+                    d[1] = functools.reduce(lambda x,y:x+y,dist)
                 else:
-                    d[1] = d[1] + MDIST[1]
+                    d[1] = d[1] + dist[1]
                 HTT_HRR =\
                 [float(conductivity[i][0][2])+height,float(conductivity[i+1][0][2])+height_r]
                 HTT_HRR_F =\
@@ -59,54 +58,52 @@ def cal_milliton(geo_info,MFREQ,MIPOL,dis,HTT,HRR,height,height_r):
     #    print str(Et)+"=("+str(EdB[0])+"+"+str(EdB[1])+")/2"
         return Et
     elif len(conductivity) == 2: # only one conductivity
-        MSIGMA = conductivity[0][1]
-        Et = homo_path(dis,HTT,HRR,MIPOL,MFREQ,MSIGMA)
+        p['sigma'] = conductivity[0,1]
+        Et = homo_path(p)
         return Et
     else: # error
-        return None
+        raise RuntimeError('Conductivities not computed.')
 
 
-def homo_path(dis,HTT,HRR,MIPOL,MFREQ,MSIGMA):
-    h = [HTT,HRR]
-    MEPSLON = cal_MEPSLON(MSIGMA,MFREQ)
-    Et = call_gr(MIPOL,MFREQ,MEPSLON,MSIGMA,dis,h)
+def homo_path(p:dict):
+    p = cal_MEPSLON(p)
+    Et = call_gr(p)
     print(Et)
 
     return Et
 
+
+def cal_MEPSLON(p,sigma=None):
 # ITU Report 879-1 indicates that an empirical equation relating permittivity to
 # conductivity, for frequencies below 30MHz, has been found by Hanle
-def cal_MEPSLON(MSIGMA,MFREQ):
+    assert p['freq'] <= 30e6
 
-    assert MFREQ <= 30*(10**6)
+    p['epslon'] = 50*p['sigma']**(1/3)
 
-    return 50*MSIGMA**(1.0/3)
+    return p
 
 
 def find_path_with_diff_conductivity(geo_info):
-    data = []
     con_pre = 0
-    conductivity = []
+    conductivity = np.empty((geo_info.shape[0],4))
 
-    data = np.asarray(geo_info)
-    conc = getConductivity_mat(data)
+    data = geo_info
+    cond = getConductivity_mat(data)
     i = 0
-    for con in conc:
-        if con != con_pre:
-            if con != DEFAULT_RES:
-                con_pre = con
-                con_final = [data[i],con]
-                conductivity.append(con_final)
+    for c in cond:
+        if c != con_pre and c != DEFAULT_RES:
+            con_pre = c
+            conductivity[i,:3] = data[i,:]
+            conductivity[i,3] = c
         i = i+1
-        if i == len(conc):
-            con_final = [data[i-1],con]
-            conductivity.append(con_final)
-   # print conductivity
+        if i == cond.shape:
+             conductivity[i,:3] = data[i-1,:]
+             conductivity[i,3] = c
+
     return conductivity
 
-#cal_milliton(geo_info,900,1)
 
-def call_gr(p):
+def call_gr(p:dict):
     bdir = (Path.cwd() / "millington_file")
     bdir.mkdir(exist_ok=True)
     fn = Path(tempfile.mkstemp(dir=bdir)[1])
@@ -126,36 +123,29 @@ def call_gr(p):
 
     ofn = fn.parent / (fn.name +"_out")
 # %%
-    grcmd = [str(Path.cwd()/"gr"),
-             "<", str(fn),
-             ">", str(ofn)]
-    print(' '.join(grcmd))
+    grcmd = str(Path.cwd()/"gr")
+    print(grcmd)
 
-    subprocess.check_call(grcmd)
+    with fn.open('r') as i,ofn.open('w') as o:
+        subprocess.check_call(grcmd, stdin=i, stdout=o)
 # %%
     plcmd = ["perl","ana.pl", str(ofn)]
 
-    ppl = subprocess.check_output(plcmd)
+    ppl = subprocess.check_output(plcmd).decode('ascii')
 
-    if ppl is not " ":
-        return_Edb = ppl[0].split("\n")[0]
-        try:
-            print(return_Edb)
-            return float(return_Edb)
-        except Exception as e:
-            return_Edb = 0
-
-            return return_Edb
+    if ppl.strip():
+        return float(ppl.split("\n")[0])
 
 
 if __name__ == '__main__':
-    #geo_info = Groudon.getPathInfo("-41","171","-42","172")
-   # geo_info = Groudon.formatPathInfo(geo_info)
+    freqMHz = 0.5
+#    geo_info = Groudon.getPathInfo(-41,171,-42,172)
+#    geo_info = Groudon.formatPathInfo(geo_info)
 
-#    find_path_with_diff_conductivity(geo_info)
+    find_path_with_diff_conductivity(geo_info)
 
-    grp ={'ipolrn':1,
-          'freq':900,
+    p ={'ipolrn':1,
+          'freq':freqMHz,
           'epslon':70,
           'sigma':5,
           'dmin':10,
@@ -164,6 +154,6 @@ if __name__ == '__main__':
           'hrr':3
             }
 
-    call_gr(grp)
+    rgr = call_gr(p)
 
-    #cal_milliton(geo_info,900,1)
+    cal_milliton(geo_info, p)
