@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from pathlib import Path
 import subprocess
 import random
 import os
@@ -105,54 +106,40 @@ def find_path_with_diff_conductivity(geo_info):
 
 #cal_milliton(geo_info,900,1)
 
-def call_gr(MIPOL,MFREQ,MEPSLON,MSIGMA,MDIST,h):
-    MFREQ = MFREQ
-    HTT = h[0]
-    HRR = h[1]
-    # this below method is very dangerous when multi users using this system!!
-    # it may occur conflict
-    # however I like it :)
-    filename = str(random.randrange(0,1000001,2))
-    try:
-        with open(os.getcwd()+"/millington_file/"+filename, "w") as f:
-            command = "HTT {} \n\
-                       HRR {} \n\
-                       IPOLRN {} \n\
-                       FREQ {} \n\
-                       SIGMA {} \n\
-                       EPSLON {} \n\
-                       dmin {} \n\
-                       dmax {} \n\
-                       GO\
-                       ".format(str(HTT),str(HRR),str(MIPOL),str(MFREQ),str(MSIGMA),str(MEPSLON),str(MDIST),str(MDIST+1))
-            #print command
-            f.write(command)
-    except Exception as e:
-        print("ERROR CREATE GR FILE IN MILLINTON.PY")
+def call_gr(p):
+    fn = str(random.randrange(0,1000001,2))
 
-    if not os.path.exists(os.getcwd()+"/millington_file"):
-        os.mkdir(os.getcwd()+"/millington_file")
-    rungrwave = os.getcwd() + "/gr <"+os.getcwd()+"/millington_file/"+filename+\
-                " > "+os.getcwd()+"/millington_file/"+filename+"_out"
-   # print rungrwave
-    try:
-        process_rungrwave = subprocess.Popen(rungrwave,shell=True)
-        process_rungrwave.wait()
-    except Exception as e:
-        print("rungrawve error IN MILLINTON.PY")
+    with open(os.getcwd()+"/millington_file/"+fn, "w") as f:
+        cmd= (f"HTT {p['htt']}\n"
+              f"HRR {p['hrr']}\n"
+              f"IPOLRN {p['ipolrn']}\n"
+              f"FREQ {p['freq']}\n"
+              f"SIGMA {p['sigma']}\n"
+              f"EPSLON {p['epslon']}\n"
+              f"DMIN {p['dmin']}\n"
+              f"DMAX {p['dmax']}\n"
+              "GO")
 
-        return 1
+        print(cmd)
+        f.write(cmd)
 
-    runperl = "perl ana.pl "+ os.getcwd()+"/millington_file/"+filename+"_out"
-    try:
-        process_runperl_output = subprocess.Popen(runperl,stdout =\
-                subprocess.PIPE,shell=True).communicate()
-    except Exception as e:
-        print(e)
-        return 1
+    bdir = (Path.cwd() / "millington_file")
+    bdir.mkdir(exist_ok=True)
+    ofn = bdir/(fn+"_out")
+# %%
+    grcmd = [str(Path.cwd()/"gr"),
+             "<", str(bdir/fn),
+             ">", str(ofn)]
+    print(' '.join(grcmd))
 
-    if process_runperl_output is not " ":
-        return_Edb = process_runperl_output[0].split("\n")[0]
+    subprocess.check_call(grcmd)
+# %%
+    plcmd = ["perl","ana.pl", ofn]
+
+    ppl = subprocess.check_output(plcmd)
+
+    if ppl is not " ":
+        return_Edb = ppl[0].split("\n")[0]
         try:
             print(return_Edb)
             return float(return_Edb)
@@ -161,14 +148,23 @@ def call_gr(MIPOL,MFREQ,MEPSLON,MSIGMA,MDIST,h):
 
             return return_Edb
 
-    #return float(return_Edb)
 
 if __name__ == '__main__':
-    geo_info = Groudon.getPathInfo("-41","171","-42","172")
-    geo_info = Groudon.formatPathInfo(geo_info)
+    #geo_info = Groudon.getPathInfo("-41","171","-42","172")
+   # geo_info = Groudon.formatPathInfo(geo_info)
 
-    find_path_with_diff_conductivity(geo_info)
+#    find_path_with_diff_conductivity(geo_info)
 
-    call_gr("1","900","0.005","30","200","4")
+    grp ={'ipolrn':1,
+          'freq':900,
+          'epslon':70,
+          'sigma':5,
+          'dmin':10,
+          'dmax':200,
+          'htt':150,
+          'hrr':3
+            }
+
+    call_gr(grp)
 
     #cal_milliton(geo_info,900,1)
