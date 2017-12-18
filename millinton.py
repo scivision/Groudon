@@ -3,7 +3,6 @@ from __future__ import division
 from pathlib import Path
 import subprocess
 import tempfile
-import functools
 import numpy as np
 #
 from Groudon.loadc import getConductivity_mat, DEFAULT_RES
@@ -17,13 +16,15 @@ def cal_milliton(geo_info, p:dict):
         i = 0
         j = 0
         d = [0,0]
-        EdB = [0] * 2
+        EdB = np.zeros(2)
         p1 = p.copy()
         p2 = p.copy()
+        p3 = p.copy()
+
         while j < 2:
             while i < conductivity.shape[0] - 2:
-                lat = conductivity[i:i+2, 0]
-                lng = conductivity[i:i+2, 1]
+                lat = conductivity[i:i+3, 0]
+                lng = conductivity[i:i+3, 1]
 
                 p1['sigma'] = conductivity[i,3]
                 p1 = cal_MEPSLON(p1)
@@ -38,20 +39,27 @@ def cal_milliton(geo_info, p:dict):
                     d[0] = dist[0]
                 else:
                     d[0] = d[1]
+                p1['dmin'] = d[0]
+                p2['dmin'] = d[0]
+
 
                 if i == 0:
-                    d[1] = functools.reduce(lambda x,y:x+y,dist)
+                    d[1] = dist[0] + dist[1]
                 else:
                     d[1] = d[1] + dist[1]
-                HTT_HRR =\
-                [float(conductivity[i][0][2])+height,float(conductivity[i+1][0][2])+height_r]
-                HTT_HRR_F =\
-                [float(conductivity[i+1][0][2])+height,HRR]
-                h = [HTT_HRR,HTT_HRR_F]
-                EdB[j] = EdB[j] + call_gr(MIPOL,MFREQ,MEPSLON1,MSIGMA1,d[0],h[0])
-                EdB[j] = EdB[j] - call_gr(MIPOL,MFREQ,MEPSLON2,MSIGMA2,d[0],h[0])
+                p3['dmin'] = d[1]
+
+                HTT_HRR = conductivity[i:i+2,2] + p['hrr']
+                HTT_HRR_F = (conductivity[i+1,2]+p['hrr'], p['hrr'])
+
+                p1['htt'] = HTT_HRR
+                p2['htt'] = HTT_HRR
+                p3['htt'] = HTT_HRR_F
+                EdB[j] = EdB[j] + call_gr(p1)
+                EdB[j] = EdB[j] - call_gr(p2)
                 i +=1
-            EdB[j] = EdB[j] + call_gr(MIPOL,MFREQ,MEPSLON2,MSIGMA2,d[1],h[1])
+
+            EdB[j] = EdB[j] + call_gr(p3)
             conductivity.reverse()
             j +=1
         Et = (EdB[0] + EdB[1]) /2
